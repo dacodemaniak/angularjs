@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<!-- 
+	@view listing.html
+	Permet d'afficher le contenu d'une structure de choses à faire
+	à partir d'un contrôleur "listingApp"
+ -->
+<html ng-app="listingApp">
+	<head>
+		<meta charset="utf-8">
+		<title>Afficher une liste côté client</title>
+		
+		<!-- Bootstrap en CDN -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">		
+		<!-- Ajout des styles personnalisés -->
+		<link href="css/styles.css" rel="stylesheet">
+		
+		<!--  Intégration de la librairie AngularJS -->
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+		
+		<!-- Intégration de l'application AngularJS -->
+		<script src="js/chosesAFaire.js"></script>
+	</head>
+	<body>
+		<header>
+			<h1>Ma liste de choses à faire</h1>
+		</header>
+		
+		<section ng-controller="listingCtrl">
+			<form id="todo-form" ng-submit="addToList()">
+				<label for="todo-titre">A faire :</label>
+				<input type="text" placeholder="A faire..." id="todo-titre" ng-model="newTodo">
+			</form>
+			
+			<ul id="afaire">
+				<li ng-repeat="afaire in listeAFaire" ng-class="{completed: afaire.completed}">
+					<div class="todo">
+						<input class="mark" type="checkbox" ng-model="todo.completed">
+						{{ afaire.titre }}
+						<i class="glyphicon glyphicon-trash" ng-click="removeTodo(afaire)"></i>
+					</div>
+				</li>
+			</ul>
+		</section>
+	</body>
+</html>

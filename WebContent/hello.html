@@ -1,0 +1,25 @@
+<!doctype html>
+<html ng-app>
+	<head>
+		<meta charset="utf-8">
+		<title>Hello AngularJS</title>
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+	</head>
+	<body>
+		<div class="page">
+			<label>Nom : </label>
+			<input type="text" placeholder="Entrez votre nom" class="col-lg-6" ng-model="votreNom">
+			
+			<!-- Utilisons le modèle nb-model directement... -->
+			<h2>Hello {{ votreNom }} !</h2>
+		
+		</div>
+		
+		<script>
+			//$("input").on("keyup",function(){
+			//	var content = $(this).val();
+			//	var htmlContent = $("h1").html("").html("content");
+			//})
+		</script>
+	</body>
+</html>

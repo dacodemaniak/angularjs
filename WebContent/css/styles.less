@@ -1,0 +1,55 @@
+/**
+ * @name styles.less
+ * @namespace /HelloAngular/css/
+ */
+ 
+ /**
+  * @var
+  * 	default_font_color : Couleur par défaut des contenus texte
+  * 	default_margin : Marges par défaut
+  */
+  @default_font_color: rgba(128,128,128, 1);
+  @default_margin: 0.5em;
+  
+  /**
+   * Redéfinition de la balise body
+   */
+  body{
+  	color: @default_font_color;
+  }
+  
+  h1{
+  	font-weight: bold;
+  }
+  
+  /**
+   * Redéfinition de la section
+   * section ul li.completed {}
+   */
+section {
+	ul {
+		list-style-type: none;
+		li{
+			&.completed{ // section ul li.completed {...}
+				text-decoration: line-through;
+				color: lighten(@default_font_color, 20%);
+				.remplissage(rgba(255,0,0,.7)); // Appelle la fonction remplissage...
+				.marges(@default_margin * 2, 0, @default_margin * 2, 0);
+			}
+		}
+	}   
+}
+
+/**
+ * MIXINS : Fonctions qui peuvent être appelées n'importe où
+ */
+ .remplissage(@color: @default_font_color){
+ 	background-color: darken(@color, 30%);
+ }
+ 
+ .marges(@top: @default_margin, @left: @default_margin, @bottom: @default_margin, @right: @default_margin){
+ 	margin-top: @top;
+ 	margin-bottom: @bottom;
+ 	margin-left: @left;
+ 	margin-right: @right;
+ }
