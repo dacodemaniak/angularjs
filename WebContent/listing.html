@@ -16,30 +16,53 @@
 		
 		<!--  Intégration de la librairie AngularJS -->
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/ngStorage/0.3.6/ngStorage.min.js"></script>
 		
 		<!-- Intégration de l'application AngularJS -->
 		<script src="js/chosesAFaire.js"></script>
 	</head>
 	<body>
-		<header>
-			<h1>Ma liste de choses à faire</h1>
-		</header>
-		
-		<section ng-controller="listingCtrl">
-			<form id="todo-form" ng-submit="addToList()">
-				<label for="todo-titre">A faire :</label>
-				<input type="text" placeholder="A faire..." id="todo-titre" ng-model="newTodo">
-			</form>
+		<div class="container-fluid">
+			<header class="header row">
+				<h1>Ma liste de choses à faire</h1>
+			</header>
 			
-			<ul id="afaire">
-				<li ng-repeat="afaire in listeAFaire" ng-class="{completed: afaire.completed}">
-					<div class="todo">
-						<input class="mark" type="checkbox" ng-model="todo.completed">
-						{{ afaire.titre }}
-						<i class="glyphicon glyphicon-trash" ng-click="removeTodo(afaire)"></i>
+			<section ng-controller="listingCtrl" class="container">
+				<form id="todo-form" ng-submit="addToList()" class="form-horizontal">
+					<div class="form-group">
+						<label for="todo-titre">A faire :</label>
+						<input type="text" placeholder="A faire..." id="todo-titre" ng-model="newTodo" class="form-control">
 					</div>
-				</li>
-			</ul>
-		</section>
+				</form>
+				
+				<div ng-show="listeAFaire.length">
+					<header>
+						<h2>Toutes les tâches</h2>
+						<ul class="list-unstyled">
+							<li>Total : <span class="badge">{{listeAFaire.length}}</span></li>
+							<li>Terminées : <span class="badge">{{completedTasks}}</span></li>
+							<li>En cours : <span class="badge">{{currentTasks}}</span></li>
+						</ul>
+					</header>
+					
+					<ul id="afaire">
+						<li ng-repeat="afaire in listeAFaire" ng-class="{completed: afaire.completed}">
+							<div class="todo">
+								<input class="mark" type="checkbox" ng-model="afaire.completed" ng-click="ventilation(afaire.completed)">
+								{{ afaire.titre }}
+								<i class="glyphicon glyphicon-trash" ng-click="removeTodo(afaire)"></i>
+							</div>
+						</li>
+					</ul>
+	
+				
+					<!-- Définir les boutons pour cocher / tout décocher -->
+					<label>
+						<input type="checkbox" id="check-uncheck" ng-model="allChecked" ng-click="checkAll(allChecked)">Tout (Dé)sélectionner
+					</label>
+					<button class="btn btn-danger" name="clear-checked-tasks" id="clear-checked-tasks" ng-click="clearCheckedTasks()">Effacer les tâches réalisées</button>
+				</div>
+			</section>
+		</div>
 	</body>
 </html>
