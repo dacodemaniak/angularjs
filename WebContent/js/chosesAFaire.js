@@ -6,18 +6,44 @@
 // Définir l'application en tant que module AngularJS
 var listingApp = angular.module("listingApp", [
 	// Dépendances du module listingApp
-	"ngStorage", // Instance de gestion du localstorage
-	"todoList"
+	'ngRoute',
+	'ngStorage', // Instance de gestion du localstorage
+	'ngToast',
+	'ngAnimate',
+	'todoList'
+]);
+
+// Définition des routes de notre application
+listingApp.config(['$routeProvider', function($routeProvider){
+		// On va déterminer ce qui doit se passer en fonction des URIs
+		$routeProvider
+		.when('/home',{
+			templateUrl: 'templates/listing.html',
+			controller: 'listingCtrl'
+		})
+		.otherwise({
+			redirectTo: '/home'
+		});
+	}
 ]);
 
 // Définition du module todoList
-var todoList = angular.module("todoList",[]);
+var todoList = angular.module("todoList",[])
+	.config([
+		'ngToastProvider', function(ngToast){
+			ngToast.configure({
+				verticalPosition: 'top',
+				horizontalPosition: 'center',
+				animation: 'fade'
+			})
+		}
+	]);
 
 /**
 * Définition du contrôleur qui sera utilisé pour la vue listing.html
 * $scope => définit la relation entre le contrôleur et la vue
 **/
-todoList.controller("listingCtrl", ["$scope","$localStorage", function($scope, $localStorage){
+todoList.controller("listingCtrl", ["$scope","$localStorage","ngToast", function($scope, $localStorage, ngToast){
 	var listeAFaire = {}; // Joindre la variable listeAFaire de la vue avec le contrôleur
 	
 	var completedTasks = {}; // Un objet vide, pour comptabiliser le nombre de tâches complètes
@@ -25,6 +51,8 @@ todoList.controller("listingCtrl", ["$scope","$localStorage", function($scope, $
 	
 	// Récupérer les données du stockage local
 	listeAFaire = $localStorage.todoList;
+	
+	ngToast.create("Chargement de la liste");
 	
 	// Injecter la liste dans la vue...
 	if(listeAFaire != null){
@@ -131,6 +159,54 @@ todoList.controller("listingCtrl", ["$scope","$localStorage", function($scope, $
 		 });
 		 
 		 $localStorage.todoList = $scope.listeAFaire; // On met à jour le localstorage
+		 
+		 // Pour mettre à jour les compteurs, on refait le calcul
+		listeAFaire = $scope.listeAFaire;
+		completedTasks = calculCompleteTasks(listeAFaire); 
+		currentTasks = (listeAFaire.length) - completedTasks;
+			
+		$scope.completedTasks = completedTasks;
+		$scope.currentTasks = currentTasks;
+		 
+	 }
+	 
+	 /**
+	  * watcher $watch
+	  * Paramètre 1 : la variable du scope à surveiller
+	  * Paramètre 2 : la fonction à déclencher quand cette variable change
+	  * Surveiller un élément dans une vue et agir en conséquence
+	 **/
+	 
+	 
+	 /**
+	  * Définition de la fonction satisfaction :
+	  * Si le nombre de tâches complètes et égal au nombre de tâches
+	 **/
+	 function satisfaction(newValue, oldValue, $scope){
+		 console.log("completedTasks a changé : " + newValue);
+		 // Effectuons un calcul de pourcentage...
+		 var completed = (newValue / ($scope.listeAFaire.length)) * 100;
+		 
+		 // Afficher un toast quand on a accompli toutes les tâches
+		 if(completed >= 100){
+			 var completeToast = ngToast.success(
+					 {
+						 content: "Bravo, on est arrivé au bout !",
+						 dismissOnTimeout: true, // Disparition automatique
+						 timeout: 3000, // Disparaît au bout de 3s
+						 horizontalPosition: "center"
+					 }
+			 );
+		 }
+		 
+		 $scope.alertMsg = completed;
+	 }
+	 
+	 /**
+	  * Méthode pour le calcule des tâches complètées
+	  */
+	 $scope.calcule = function(){
+		 return calculCompleteTasks($scope.listeAFaire);
 	 }
 	 
 	 /**
@@ -147,4 +223,9 @@ todoList.controller("listingCtrl", ["$scope","$localStorage", function($scope, $
 		 
 		 return total;
 	 }
+	 
+	 /**
+	  * On surveille l'état de la variable "calcule"
+	  */
+	 $scope.$watch($scope.calcule, satisfaction);
 }])

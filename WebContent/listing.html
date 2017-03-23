@@ -7,16 +7,23 @@
 <html ng-app="listingApp">
 	<head>
 		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 		<title>Afficher une liste côté client</title>
 		
 		<!-- Bootstrap en CDN -->
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">		
+		<link rel="stylesheet" href="js/ngToast/dist/ngToast.min.css">
+		<link rel="stylesheet" href="js/ngToast/dist/ngToast-animations.min.css">
+		
 		<!-- Ajout des styles personnalisés -->
 		<link href="css/styles.css" rel="stylesheet">
 		
 		<!--  Intégration de la librairie AngularJS -->
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/ngStorage/0.3.6/ngStorage.min.js"></script>
+		<script src="js/angular-sanitize/angular-sanitize.min.js"></script>
+		<script src="js/angular-animate/angular-animate.min.js"></script>
+		<script src="js/ngToast/dist/ngToast.min.js"></script>
 		
 		<!-- Intégration de l'application AngularJS -->
 		<script src="js/chosesAFaire.js"></script>
@@ -27,7 +34,9 @@
 				<h1>Ma liste de choses à faire</h1>
 			</header>
 			
-			<section ng-controller="listingCtrl" class="container">
+			<section ng-controller="listingCtrl" class="container" ng-cloak>
+				
+				
 				<form id="todo-form" ng-submit="addToList()" class="form-horizontal">
 					<div class="form-group">
 						<label for="todo-titre">A faire :</label>
@@ -36,11 +45,12 @@
 				</form>
 				
 				<div ng-show="listeAFaire.length">
+					<toast></toast>
 					<header>
 						<h2>Toutes les tâches</h2>
 						<ul class="list-unstyled">
 							<li>Total : <span class="badge">{{listeAFaire.length}}</span></li>
-							<li>Terminées : <span class="badge">{{completedTasks}}</span></li>
+							<li>Terminées : <span class="badge">{{calcule()}}</span></li>
 							<li>En cours : <span class="badge">{{currentTasks}}</span></li>
 						</ul>
 					</header>
@@ -55,7 +65,11 @@
 						</li>
 					</ul>
 	
-				
+					<!-- Affichage dynamique d'un message -->
+					<div class="alert alert-info">
+						Pourcentage de complétion : {{alertMsg | number: 2}}%
+					</div>
+					
 					<!-- Définir les boutons pour cocher / tout décocher -->
 					<label>
 						<input type="checkbox" id="check-uncheck" ng-model="allChecked" ng-click="checkAll(allChecked)">Tout (Dé)sélectionner
