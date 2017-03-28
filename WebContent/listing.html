@@ -59,7 +59,7 @@
 						<li ng-repeat="afaire in listeAFaire" ng-class="{completed: afaire.completed}">
 							<div class="todo">
 								<input class="mark" type="checkbox" ng-model="afaire.completed" ng-click="ventilation(afaire.completed)">
-								{{ afaire.titre }}
+								{{ afaire.libelle }}
 								<i class="glyphicon glyphicon-trash" ng-click="removeTodo(afaire)"></i>
 							</div>
 						</li>
