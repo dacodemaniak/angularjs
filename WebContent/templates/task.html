@@ -17,7 +17,7 @@
 		
 		<fieldset>
 			<div class="form-group">
-				<label for="debut">Du : </label>
+				<label for="debut">Du : {{ update.debut | date: "dd-MM-yyyy"}}</label>
 				<input type="date" id="debut" ng-model="update.debut" class="form-control">
 			</div>
 			<div class="form-group">

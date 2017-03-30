@@ -149,15 +149,22 @@ todoList.controller("listingCtrl", ["$scope","$localStorage","ngToast","$http", 
 		 console.log(JSON.stringify(afaire));
 		 $scope.listeAFaire.splice($scope.listeAFaire.indexOf(afaire), 1);
 		 
-		 $localStorage.todoList = $scope.listeAFaire; // On met à jour le localstorage
+		 //$localStorage.todoList = $scope.listeAFaire; // On met à jour le localstorage
 		 
-		 // Pour mettre à jour les compteurs, on refait le calcul
-		 	listeAFaire = $scope.listeAFaire;
-			completedTasks = calculCompleteTasks(listeAFaire); 
-			currentTasks = (listeAFaire.length) - completedTasks;
-			
-			$scope.completedTasks = completedTasks;
-			$scope.currentTasks = currentTasks;
+		 /**
+		  * On appelle la méthode côté serveur pour supprimer
+		  */
+		 $http.get(
+				 "http://phptest.dev?id=" + afaire.id + "&do=delete"
+		 ).then(function(serverResponse){
+			 // Pour mettre à jour les compteurs, on refait le calcul
+			 listeAFaire = $scope.listeAFaire;
+			 completedTasks = calculCompleteTasks(listeAFaire); 
+			 currentTasks = (listeAFaire.length) - completedTasks;
+				
+			 $scope.completedTasks = completedTasks;
+			 $scope.currentTasks = currentTasks;			 
+		 });
 	 }
 	 
 	 /**
@@ -288,13 +295,19 @@ todoList.controller("taskCtrl",["$scope","$http", "$routeParams", "$location", f
 	$http.get(
 			"http://phptest.dev?id=" + $scope.taskId // Transmission du paramètre id avec la valeur concernée "$scope.taskId
 		).then(function(serverResponse){
-			console.log("Réponse du serveur : " + serverResponse.data);
+			console.log("Réponse du serveur : " + JSON.stringify(serverResponse.data));
 			// Définition des données de la vue...
 			$scope.update.libelle = serverResponse.data[0].libelle;
 			$scope.update.description = serverResponse.data[0].description;
 			$scope.update.completed = (serverResponse.data[0].completed == 0) ? false : true;
-			$scope.update.debut = serverResponse.data[0].debut;
-			$scope.update.fin = serverResponse.data[0].fin;
+			// Parsing des dates... car ben oui, en Javascript les dates sont étranges
+			var parsedDate = serverResponse.data[0].debut.split("-");
+			console.log("Année : "  + parsedDate[0] + " Mois : " + parsedDate[1]);
+			$scope.update.debut = new Date(parsedDate[0], (parsedDate[1]-1), parsedDate[2]);
+			
+			parsedDate = serverResponse.data[0].fin.split("-");
+			$scope.update.fin = new Date(parsedDate[0], (parsedDate[1]-1), parsedDate[2]);
+			
 			$scope.update.priorite = serverResponse.data[0].priorite;
 			$scope.update.id = $scope.taskId;
 		}
@@ -312,12 +325,35 @@ todoList.controller("taskCtrl",["$scope","$http", "$routeParams", "$location", f
 		
 		// On appelle la ressource sur le serveur
 		$http.post(
-			"http://phptest.dev",
-			$scope.update, // Les données à traiter
+			"http://phptest.dev", // Ressource index.php sur le serveur
+			$scope.update, // Les données à traiter ($scope.update => 
 			config
 		).then(function(serverResponse){
 			// Qui devrait rediriger vers la page d'accueil
 			$location.path("/home");
 		});
 	}
-}]);
+}])
+.directive( // Permet d'ajouter ou modifier le comportement d'un ou plusieurs champs dans les vues
+	"dateInput", // Nom de la directive
+	function(dateFilter){ // Fonction qui retourne le champ tel qu'on le souhaite à la fin
+		return { // JSON qui sera retourné pour indiquer à Angular comment gérer le champ
+			require: "ngModel", // Requiert la directive ng-model
+			template: "<input type=\"date\" data-rel=\"date\" />", // Modèle de remplacement pour le champ de type "dateInput"
+			replace: true, // Remplace le champ tel qu'il a été défini dans la vue
+			link: function(scope, element, attrs, ngModelCtrl){
+				console.log("Elémént : "  + JSON.stringify(element));
+				// Définit ce qui vient du modèle
+				ngModelCtrl.$formatters.unshift(function(modelValue){
+					console.log("Valeur à récupérer : " + modelValue);
+					return dateFilter(modelValue, "yyyy-MM-dd");
+				});
+				// Définit ce qui doit être affiché dans le modèle
+				ngModelCtrl.$parsers.unshift(function(viewValue){
+					console.log("Valeur à afficher : " + viewValue);
+					return new Date(viewValue);
+				});
+			}
+		}
+	}
+);
